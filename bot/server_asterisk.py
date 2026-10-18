@@ -69,7 +69,7 @@ SAMPLE_RATE = int(os.environ.get("SAMPLE_RATE", "16000"))  # slin16 default
 
 def ari_post(path: str, **params):
     resp = requests.post(f"{ARI_HOST}/ari{path}", params=params,
-                          auth=(ARI_USER, ARI_PASS), timeout=10)
+                         auth=(ARI_USER, ARI_PASS), timeout=10)
     resp.raise_for_status()
     return resp.json() if resp.content else None
 
@@ -118,7 +118,7 @@ async def handle_channel(channel_id: str):
                 if event == "speech_start":
                     speech_started = True
                     buffer = bytearray()
-                    print(f"[hermes-asterisk] speech started")
+                    print("[hermes-asterisk] speech started")
 
                 elif event == "speech_end" and speech_started:
                     speech_started = False
