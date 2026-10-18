@@ -1,5 +1,5 @@
 // Captures real screenshots of the running demo stack with Playwright.
-// Usage (stack already running):  BASE_URL=http://127.0.0.1:8080 node scripts/screenshots.mjs
+// Usage (stack already running):  BASE_URL=http://127.0.0.1:8766 node scripts/screenshots.mjs
 // Requires: npm install --no-save playwright && npx playwright install chromium
 //
 // Safety: every page is scanned for private IPs, tailnet IPs, emails, and forbidden words
@@ -11,13 +11,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const BASE = process.env.BASE_URL || "http://127.0.0.1:8080";
+const BASE = process.env.BASE_URL || "http://127.0.0.1:8766";
 const OUT = process.env.OUT_DIR || "docs/screenshots";
 const RECORD = process.env.RECORD === "1";
 
 // Edit this list per project: one entry per screen worth showing.
 const PAGES = [
-  { name: "dashboard", path: "/", waitFor: "#app-ready" },
+  { name: "overview", path: "/", waitFor: ".hero h1" },
+  { name: "architecture", path: "/#architecture", waitFor: ".arch-diagram", fullPage: false },
+  { name: "quickstart", path: "/#quickstart", waitFor: ".code-block", fullPage: false },
 ];
 
 const FORBIDDEN = [
@@ -65,7 +67,7 @@ for (const p of PAGES) {
   }
 
   const file = path.join(OUT, `${p.name}.png`);
-  await page.screenshot({ path: file, fullPage: true });
+  await page.screenshot({ path: file, fullPage: p.fullPage !== false });
   console.log(`saved ${file}`);
   await page.close();
 }
