@@ -1,5 +1,5 @@
 """
-Hermes Voice — Asterisk / FreePBX transport
+Vokara — Asterisk / FreePBX transport
 JorahOne
 
 Alternative to server.py for setups using Asterisk or FreePBX instead of
@@ -7,14 +7,14 @@ FreeSWITCH. Uses Asterisk's ARI (REST + WebSocket events) and the
 externalMedia channel feature to get RTP audio into this process, rather
 than FreeSWITCH's mod_audio_fork.
 
-Same hermes_brain.py underneath (STT -> LLM -> TTS) — only the transport
+Same vokara_brain.py underneath (STT -> LLM -> TTS) — only the transport
 differs.
 
 --------------------------------------------------------------------------
 Setup overview (see README.md for full walkthrough):
 
 1. In Asterisk's ari.conf, enable ARI and create a user:
-     [hermes]
+     [vokara]
      type = user
      password = changeme
      read_only = no
@@ -28,16 +28,16 @@ Setup overview (see README.md for full walkthrough):
 
 3. In extensions.conf (or FreePBX's Custom Destinations), route your bot
    extension into a Stasis app:
-     exten => 8500,1,NoOp(Hermes Voice)
+     exten => 8500,1,NoOp(Vokara)
       same => n,Answer()
-      same => n,Stasis(voicecortex)
+      same => n,Stasis(vokara)
       same => n,Hangup()
 
 4. This script connects to ARI's WebSocket event stream for the
-   "hermes-voice" Stasis app, and for each new channel:
-     - creates an externalMedia channel (RTP, slin16 or ulaw)
-     - bridges it to the caller's channel
-     - reads/writes raw PCM over a local UDP socket to/from that bridge
+   "vokara" Stasis app, and for each new channel:
+      - creates an externalMedia channel (RTP, slin16 or ulaw)
+      - bridges it to the caller's channel
+      - reads/writes raw PCM over a local UDP socket to/from that bridge
 
 This file provides the skeleton + working RTP I/O loop; the ARI channel/
 bridge plumbing has a few moving parts that are genuinely
@@ -52,15 +52,15 @@ import json
 import os
 import socket
 
-import hermes_brain as brain
 import requests
+import vokara_brain as brain
 import websockets
 from vad import create_vad
 
 ARI_HOST = os.environ.get("ARI_HOST", "http://127.0.0.1:8088")
-ARI_USER = os.environ.get("ARI_USER", "hermes")
+ARI_USER = os.environ.get("ARI_USER", "vokara")
 ARI_PASS = os.environ.get("ARI_PASS", "changeme")
-ARI_APP = os.environ.get("ARI_APP", "voicecortex")
+ARI_APP = os.environ.get("ARI_APP", "vokara")
 
 EXTERNAL_MEDIA_HOST = os.environ.get("EXTERNAL_MEDIA_HOST", "127.0.0.1")
 EXTERNAL_MEDIA_PORT = int(os.environ.get("EXTERNAL_MEDIA_PORT", "40000"))
@@ -76,7 +76,7 @@ def ari_post(path: str, **params):
 
 async def handle_channel(channel_id: str):
     """Bridges one caller channel through externalMedia and runs the brain loop."""
-    print(f"[hermes-asterisk] handling channel {channel_id}")
+    print(f"[vokara-asterisk] handling channel {channel_id}")
 
     # Create a bridge, add the caller channel to it
     bridge = ari_post("/bridges", type="mixing")
@@ -118,7 +118,7 @@ async def handle_channel(channel_id: str):
                 if event == "speech_start":
                     speech_started = True
                     buffer = bytearray()
-                    print("[hermes-asterisk] speech started")
+                    print("[vokara-asterisk] speech started")
 
                 elif event == "speech_end" and speech_started:
                     speech_started = False
@@ -130,11 +130,11 @@ async def handle_channel(channel_id: str):
                     if not text:
                         continue
 
-                    print(f"[hermes-asterisk] caller said: {text}")
+                    print(f"[vokara-asterisk] caller said: {text}")
                     history.append({"role": "user", "content": text})
                     reply = brain.ask_llm(history)
                     history.append({"role": "assistant", "content": reply})
-                    print(f"[hermes-asterisk] hermes says: {reply}")
+                    print(f"[vokara-asterisk] bot says: {reply}")
 
                     audio_out = brain.synthesize_piper(reply, SAMPLE_RATE)
                     # Send back as RTP-framed UDP packets to the caller's RTP
@@ -151,7 +151,7 @@ async def handle_channel(channel_id: str):
 async def ari_event_loop():
     uri = f"{ARI_HOST.replace('http', 'ws')}/ari/events?app={ARI_APP}&api_key={ARI_USER}:{ARI_PASS}"
     async with websockets.connect(uri) as ws:
-        print(f"[hermes-asterisk] connected to ARI events, app={ARI_APP}")
+        print(f"[vokara-asterisk] connected to ARI events, app={ARI_APP}")
         async for message in ws:
             event = json.loads(message)
             if event.get("type") == "StasisStart":

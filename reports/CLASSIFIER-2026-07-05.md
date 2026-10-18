@@ -1,6 +1,6 @@
 # Phase 0 CLASSIFIER — Project Classification
 
-**Repository:** `OneByJorah/VoiceCortex`
+**Repository:** `OneByJorah/vokara`
 **Date:** 2026-07-05
 **Analyst:** J1-PIPELINE CLASSIFIER
 
@@ -14,7 +14,7 @@
 
 | Class | Rationale |
 |-------|-----------|
-| **Python** | Core language — all bot code is Python 3.11 (hermes_brain.py, server.py, server_asterisk.py, vad.py) |
+| **Python** | Core language — all bot code is Python 3.11 (vokara_brain.py, server.py, server_asterisk.py, vad.py) |
 | **Docker** | Docker Compose deployment with two services (freeswitch, bot), Dockerfile for bot |
 | **AI** | Full STT → LLM → TTS AI pipeline (faster-whisper, Ollama/llama.cpp/API, Piper) |
 | **LLM** | Multiple LLM backends: Ollama, llama.cpp, Anthropic, OpenAI, OpenRouter |

@@ -4,10 +4,11 @@ Instructions for AI coding agents (OpenCode, Freebuff/Codebuff, Hermes workers, 
 
 ## Project
 
-- **What it is:** replace with one sentence.
-- **Stack:** replace (language, framework, runtime).
-- **Run locally:** `cp .env.example .env && docker compose up -d --build`, then open `http://127.0.0.1:8080`.
-- **Health check:** `GET /healthz` must return 200.
+- **What it is:** Self-hosted phone AI assistant — a real-time STT → LLM → TTS bot that bridges calls from FreeSWITCH, Asterisk, FreePBX, or 3CX.
+- **Stack:** Python 3.11+, `websockets`, faster-whisper (STT), Piper (TTS), Ollama/llama.cpp/hosted API (LLM); Docker Compose for deployment.
+- **Run locally:** `cp .env.example .env && docker compose up -d --build`, then open `http://127.0.0.1:8766`.
+- **Health check:** `GET http://127.0.0.1:8766/healthz` must return 200. Call audio WebSocket listens on `127.0.0.1:8765`.
+- **Demo mode:** `.env.example` ships `DEMO_MODE=true` — the HTTP surface and call loop run with canned data, no models/keys/GPU. Set `DEMO_MODE=false` for real STT/LLM/TTS.
 
 ## Commands
 

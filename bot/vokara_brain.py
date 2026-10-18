@@ -1,10 +1,13 @@
 """
-Hermes Voice — shared brain
+Vokara — shared brain
 JorahOne
 
 STT -> LLM -> TTS logic shared between transports (FreeSWITCH server.py,
 Asterisk server_asterisk.py). Transport-specific files handle getting audio
 in and out; this module only knows about PCM16 bytes and text.
+
+DEMO_MODE=true skips model loading and returns canned call data, so the
+stack can start and be exercised without GPUs, model weights, or API keys.
 """
 
 import io
@@ -13,9 +16,8 @@ import wave
 
 import numpy as np
 import requests
-import soundfile as sf
-from faster_whisper import WhisperModel
-from piper import PiperVoice
+
+DEMO_MODE = os.environ.get("DEMO_MODE", "false").lower() in ("1", "true", "yes")
 
 LLM_BACKEND = os.environ.get("LLM_BACKEND", "ollama")  # ollama | llamacpp | api
 
@@ -30,19 +32,40 @@ API_MODEL = os.environ.get("API_MODEL", "claude-sonnet-4-6")
 API_PROVIDER = os.environ.get("API_PROVIDER", "anthropic")
 
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small.en")
-WHISPER_DEVICE = os.environ.get("WHISPER_DEVICE", "cuda")
+WHISPER_DEVICE = os.environ.get("WHISPER_DEVICE", "cpu")
 PIPER_VOICE = os.environ.get("PIPER_VOICE", "/piper-voices/en_US-amy-medium.onnx")
-PERSONA_FILE = os.environ.get("HERMES_SYSTEM_PROMPT_FILE", "/app/persona.txt")
+PERSONA_FILE = os.environ.get("VOKARA_SYSTEM_PROMPT_FILE", os.path.join(os.path.dirname(__file__), "persona.txt"))
 
-with open(PERSONA_FILE) as f:
-    SYSTEM_PROMPT = f.read().strip()
-
-print(f"[hermes] LLM backend = {LLM_BACKEND}")
-print(f"[hermes] loading whisper model={WHISPER_MODEL} device={WHISPER_DEVICE}")
-whisper_model = WhisperModel(
-    WHISPER_MODEL, device=WHISPER_DEVICE,
-    compute_type="float16" if WHISPER_DEVICE == "cuda" else "int8",
+DEFAULT_SYSTEM_PROMPT = (
+    "You are Vokara, a phone assistant. Speak naturally, in short sentences. "
+    "This is audio: no markdown, no lists."
 )
+
+try:
+    with open(PERSONA_FILE) as f:
+        SYSTEM_PROMPT = f.read().strip()
+except OSError:
+    SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
+
+# Canned demo conversation (no real people, orders, or hosts).
+DEMO_CALLER_TEXT = "Hi, I'm calling about my delivery — can you help me track it?"
+DEMO_REPLY = "Of course. I can help with that. Let me look up the latest status — one moment."
+
+_whisper_model = None
+
+
+def _get_whisper():
+    """Load the faster-whisper model on first use (not at import time)."""
+    global _whisper_model
+    if _whisper_model is None:
+        from faster_whisper import WhisperModel
+
+        print(f"[vokara] loading whisper model={WHISPER_MODEL} device={WHISPER_DEVICE}")
+        _whisper_model = WhisperModel(
+            WHISPER_MODEL, device=WHISPER_DEVICE,
+            compute_type="float16" if WHISPER_DEVICE == "cuda" else "int8",
+        )
+    return _whisper_model
 
 
 def pcm16_to_wav_bytes(pcm_bytes: bytes, sample_rate: int) -> bytes:
@@ -56,12 +79,16 @@ def pcm16_to_wav_bytes(pcm_bytes: bytes, sample_rate: int) -> bytes:
 
 
 def transcribe(pcm_bytes: bytes, sample_rate: int) -> str:
+    if DEMO_MODE:
+        return DEMO_CALLER_TEXT
     audio_np = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-    segments, _ = whisper_model.transcribe(audio_np, language="en", vad_filter=True)
+    segments, _ = _get_whisper().transcribe(audio_np, language="en", vad_filter=True)
     return " ".join(seg.text.strip() for seg in segments).strip()
 
 
 def ask_llm(history: list[dict]) -> str:
+    if DEMO_MODE:
+        return DEMO_REPLY
     if LLM_BACKEND == "ollama":
         return ask_ollama(history)
     elif LLM_BACKEND == "llamacpp":
@@ -137,7 +164,14 @@ def resample_pcm16(pcm_bytes: bytes, src_rate: int, dst_rate: int) -> bytes:
 
 
 def synthesize_piper(text: str, dst_sample_rate: int) -> bytes:
-    """Runs Piper TTS via Python module, returns raw PCM16 @ dst_sample_rate bytes."""
+    """Returns raw PCM16 @ dst_sample_rate. Demo mode returns proportional silence."""
+    if DEMO_MODE:
+        seconds = max(1.0, min(8.0, len(text) * 0.05))
+        return b"\x00\x00" * int(seconds * dst_sample_rate)
+
+    from piper import PiperVoice
+    import soundfile as sf
+
     voice = PiperVoice.load(PIPER_VOICE)
     audio_bytes = io.BytesIO()
     voice.synthesize(text, audio_bytes)

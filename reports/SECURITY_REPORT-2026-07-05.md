@@ -1,6 +1,6 @@
 # Phase 3 GUARDIAN — Security Report
 
-**Repository:** `OneByJorah/VoiceCortex`
+**Repository:** `OneByJorah/vokara`
 **Date:** 2026-07-05
 **Analyst:** J1-PIPELINE GUARDIAN
 

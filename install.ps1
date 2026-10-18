@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Windows installer for VoiceCortex via Docker Desktop.
+    Windows installer for Vokara via Docker Desktop.
 #>
 param(
     [switch]$SkipStart
@@ -9,7 +9,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "=== Installing VoiceCortex ===" -ForegroundColor Cyan
+Write-Host "=== Installing Vokara ===" -ForegroundColor Cyan
 
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     Write-Error "Docker Desktop is required but not found. Install it from https://www.docker.com/products/docker-desktop/"
@@ -29,9 +29,9 @@ if (-not (Test-Path $envFile)) {
 $composeCmd = if (Get-Command "docker" -ErrorAction SilentlyContinue) { "docker compose" } else { "docker-compose" }
 
 if (-not $SkipStart) {
-    Write-Host "Building and starting VoiceCortex on port 8765..." -ForegroundColor Green
+    Write-Host "Building and starting Vokara on port 8766..." -ForegroundColor Green
     Invoke-Expression "$composeCmd up --build -d"
-    Write-Host "VoiceCortex installed. Access: http://localhost:8765" -ForegroundColor Green
+    Write-Host "Vokara installed. Access: http://localhost:8766" -ForegroundColor Green
 } else {
     Write-Host "Skipped start. Run '$composeCmd up --build -d' when ready." -ForegroundColor Yellow
 }

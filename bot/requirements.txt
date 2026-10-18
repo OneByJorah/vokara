@@ -4,10 +4,11 @@ numpy>=1.26.4
 requests>=2.32.3
 piper-tts>=1.2.0
 soundfile>=0.12.1
-silero-vad>=5.1
 
-# Optional: PyTorch for Silero VAD (required for silero-vad)
-# Install separately per your CUDA setup:
+# Optional: deep-learning VAD. Pulls PyTorch (~2 GB) — the bot falls back to
+# the built-in amplitude VAD when this is not installed.
+#   pip install silero-vad torch torchaudio
+# CUDA setup:
 #   pip install torch torchaudio
-# Or for CPU-only:
+# CPU-only:
 #   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu

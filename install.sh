@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-echo "=== Installing VoiceCortex ==="
+echo "=== Installing Vokara ==="
 
 if ! command -v docker &> /dev/null; then
     echo "Docker is required but not installed. Please install Docker first."
@@ -25,11 +25,11 @@ if [ ! -f .env ]; then
     fi
 fi
 
-echo "Building and starting VoiceCortex on port 8765..."
+echo "Building and starting Vokara on port 8766..."
 if docker compose version &> /dev/null; then
     docker compose up --build -d
 else
     docker-compose up --build -d
 fi
 
-echo "VoiceCortex installed. Access: http://localhost:8765"
+echo "Vokara installed. Access: http://localhost:8766"
