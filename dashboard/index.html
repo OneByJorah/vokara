@@ -3,33 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VoiceCortex — Self-hosted Phone AI Assistant</title>
+  <title>Vokara — Self-hosted Phone AI Assistant</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: #1a1a28;
-      --bg-card-hover: #22223a;
-      --accent: #7c3aed;
-      --accent-light: #a78bfa;
-      --accent-glow: rgba(124, 58, 237, 0.25);
+      --bg-primary: #0a0a09;
+      --bg-secondary: #121210;
+      --bg-card: #1a1a17;
+      --bg-card-hover: #22221e;
+      --accent: #FFB300;
+      --accent-light: #ffc94d;
+      --accent-glow: rgba(255, 179, 0, 0.25);
       --green: #22c55e;
       --blue: #3b82f6;
       --cyan: #06b6d4;
       --orange: #f59e0b;
       --red: #ef4444;
-      --text: #e4e4ef;
-      --text-secondary: #8888aa;
-      --text-muted: #555577;
-      --border: #2a2a3e;
+      --text: #e8e6df;
+      --text-secondary: #8f8d84;
+      --text-muted: #5c5b55;
+      --border: #2a2a25;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
       background: var(--bg-primary);
       color: var(--text);
       line-height: 1.6;
@@ -58,7 +58,7 @@
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25);
+      background: rgba(255, 179, 0, 0.10); border: 1px solid rgba(255, 179, 0, 0.25);
       padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 500;
       color: var(--accent-light); margin-bottom: 24px;
     }
@@ -77,8 +77,8 @@
       padding: 12px 28px; border-radius: 10px; font-weight: 600; font-size: 15px;
       text-decoration: none; transition: all .2s;
     }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+    .btn-primary { background: var(--accent); color: #0a0a09; }
+    .btn-primary:hover { background: #e6a100; transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
     .btn-outline { border: 1px solid var(--border); color: var(--text); background: transparent; }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent-light); }
 
@@ -211,7 +211,7 @@
     }
     .step-num {
       width: 32px; height: 32px; border-radius: 8px;
-      background: var(--accent); color: #fff;
+      background: var(--accent); color: #0a0a09;
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 14px; flex-shrink: 0;
     }
@@ -256,28 +256,39 @@
 <!-- Hero -->
 <section class="hero">
   <div class="badges">
-    <img src="https://img.shields.io/github/license/OneByJorah/VoiceCortex?color=%237c3aed&style=flat" alt="License">
+    <img src="https://img.shields.io/github/license/OneByJorah/vokara?color=%23FFB300&style=flat" alt="License">
     <img src="https://img.shields.io/badge/python-3.11%2B-%233b82f6?style=flat" alt="Python">
-    <img src="https://img.shields.io/github/v/release/OneByJorah/VoiceCortex?style=flat&color=%2322c55e" alt="Release">
-    <img src="https://img.shields.io/github/last-commit/OneByJorah/VoiceCortex?style=flat&color=%2306b6d4" alt="Last commit">
+    <img src="https://img.shields.io/github/v/release/OneByJorah/vokara?style=flat&color=%2322c55e" alt="Release">
+    <img src="https://img.shields.io/github/last-commit/OneByJorah/vokara?style=flat&color=%2306b6d4" alt="Last commit">
     <img src="https://img.shields.io/badge/status-beta-%23f59e0b?style=flat" alt="Status">
   </div>
   <div class="hero-badge">&#x1f916; AI Voice Pipeline &middot; Fully Self-Hosted</div>
-  <h1>Voice<span>Cortex</span></h1>
+  <h1>Vokara</h1>
   <p>Self-hosted, real-time phone AI assistant — STT, LLM, TTS pipeline with Asterisk, FreeSWITCH, and SIP trunking support.</p>
   <div class="hero-actions">
     <a href="#quickstart" class="btn btn-primary">&#x25B6; Get Started</a>
-    <a href="https://github.com/OneByJorah/VoiceCortex" class="btn btn-outline">&#x231A; GitHub</a>
+    <a href="https://github.com/OneByJorah/vokara" class="btn btn-outline">&#x231A; GitHub</a>
     <a href="#architecture" class="btn btn-outline">&#x1F4CA; Architecture</a>
   </div>
 </section>
 
-<!-- Screenshot -->
+<!-- Pipeline strip -->
 <section class="screenshot-section">
   <div class="container">
-    <div class="screenshot-frame">
-      <img src="screenshot.png" alt="VoiceCortex screenshot"
-           onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'padding:60px;text-align:center;color:var(--text-muted)\'>Screenshot coming soon — run the dashboard to generate.</div>'">
+    <div class="screenshot-frame" style="padding:28px 32px;">
+      <div class="arch-flow">
+        <div class="arch-node"><div class="box">Caller</div></div>
+        <div class="arch-arrow">&#x2192;</div>
+        <div class="arch-node"><div class="box">PBX</div></div>
+        <div class="arch-arrow">&#x2192;</div>
+        <div class="arch-node"><div class="box" style="border-color:var(--blue)">STT</div></div>
+        <div class="arch-arrow">&#x2192;</div>
+        <div class="arch-node"><div class="box" style="border-color:var(--accent)">LLM</div></div>
+        <div class="arch-arrow">&#x2192;</div>
+        <div class="arch-node"><div class="box" style="border-color:var(--cyan)">TTS</div></div>
+        <div class="arch-arrow">&#x2192;</div>
+        <div class="arch-node"><div class="box">Caller hears reply</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -301,7 +312,7 @@
         <p>faster-whisper with configurable model sizes and VAD filtering for clean transcription.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(124,58,237,.15);color:var(--accent-light)">&#x1f9e0;</div>
+        <div class="feature-icon" style="background:rgba(255,179,0,.12);color:var(--accent-light)">&#x1f9e0;</div>
         <h3>LLM Processing</h3>
         <p>Ollama, llama.cpp, or cloud API (Claude, GPT) — your choice of AI brain.</p>
       </div>
@@ -316,9 +327,9 @@
         <p>Low-latency WebSocket streaming with Voice Activity Detection for natural conversation flow.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" style="background:rgba(239,68,68,.15);color:var(--red)">&#x1f4dd;</div>
-        <h3>Call Logging</h3>
-        <p>Automatic call recording, transcription, and full conversation history.</p>
+        <div class="feature-icon" style="background:rgba(239,68,68,.15);color:var(--red)">&#x1f6e1;</div>
+        <h3>Demo Mode</h3>
+        <p>Runs the full call loop with canned data — try the stack with no GPU, models, or API keys.</p>
       </div>
     </div>
   </div>
@@ -387,7 +398,7 @@
 <section class="quickstart" id="quickstart">
   <div class="container">
     <h2 class="section-title">Quick Start</h2>
-    <p class="section-sub">Get VoiceCortex running in under a minute.</p>
+    <p class="section-sub">Get Vokara running in under a minute.</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -413,11 +424,11 @@
     </div>
     <div class="code-block">
       <span class="comment"># Clone &amp; enter</span><br>
-      <span class="prompt">$</span> git clone https://github.com/OneByJorah/VoiceCortex.git<br>
-      <span class="prompt">$</span> <span class="keyword">cd</span> VoiceCortex<br><br>
+      <span class="prompt">$</span> git clone https://github.com/OneByJorah/vokara.git<br>
+      <span class="prompt">$</span> <span class="keyword">cd</span> vokara<br><br>
       <span class="comment"># Configure environment</span><br>
       <span class="prompt">$</span> cp .env.example .env<br>
-      <span class="prompt">$</span> <span class="keyword">vim</span> .env  <span class="comment"># set LLM_BACKEND, WHISPER_MODEL, etc.</span><br><br>
+      <span class="prompt">$</span> <span class="keyword">vim</span> .env  <span class="comment"># set DEMO_MODE=false + LLM_BACKEND for real calls</span><br><br>
       <span class="comment"># Deploy</span><br>
       <span class="prompt">$</span> docker compose up -d<br><br>
       <span class="comment"># Or run locally</span><br>
@@ -433,12 +444,13 @@
 <section class="env-vars" id="config">
   <div class="container">
     <h2 class="section-title">Configuration</h2>
-    <p class="section-sub">Environment variables to customize VoiceCortex for your setup.</p>
+    <p class="section-sub">Environment variables to customize Vokara for your setup.</p>
     <table class="env-table">
       <thead>
         <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
       </thead>
       <tbody>
+        <tr><td class="var">DEMO_MODE</td><td class="default">true</td><td>Canned call data; no models or keys needed</td></tr>
         <tr><td class="var">LLM_BACKEND</td><td class="default">ollama</td><td>LLM backend (ollama / llamacpp / api)</td></tr>
         <tr><td class="var">OLLAMA_HOST</td><td class="default">http://127.0.0.1:11434</td><td>Ollama server URL</td></tr>
         <tr><td class="var">OLLAMA_MODEL</td><td class="default">llama3.1:8b-instruct-q4_K_M</td><td>Ollama model name</td></tr>
@@ -447,9 +459,10 @@
         <tr><td class="var">API_MODEL</td><td class="default">claude-sonnet-4-6</td><td>Cloud LLM model</td></tr>
         <tr><td class="var">API_KEY</td><td class="default">—</td><td>Cloud LLM API key (server-side only)</td></tr>
         <tr><td class="var">WHISPER_MODEL</td><td class="default">small.en</td><td>Whisper model variant</td></tr>
-        <tr><td class="var">WHISPER_DEVICE</td><td class="default">cuda</td><td>STT compute device (cuda / cpu)</td></tr>
+        <tr><td class="var">WHISPER_DEVICE</td><td class="default">cpu</td><td>STT compute device (cuda / cpu)</td></tr>
         <tr><td class="var">PIPER_VOICE</td><td class="default">/piper-voices/en_US-amy-medium.onnx</td><td>Piper voice model path</td></tr>
-        <tr><td class="var">BOT_WS_PORT</td><td class="default">8765</td><td>Bot WebSocket port</td></tr>
+        <tr><td class="var">BOT_WS_PORT</td><td class="default">8765</td><td>Call audio WebSocket port</td></tr>
+        <tr><td class="var">BOT_HTTP_PORT</td><td class="default">8766</td><td>HTTP overview page + /healthz</td></tr>
       </tbody>
     </table>
   </div>
@@ -463,11 +476,11 @@
     <h2 class="section-title">Project Structure</h2>
     <p class="section-sub">Organized for clarity and extensibility.</p>
     <div class="tree">
-      <span class="dir">VoiceCortex/</span><br>
+      <span class="dir">vokara/</span><br>
       &#x251c;&#x2500;&#x2500; <span class="dir">bot/</span><br>
       &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">server.py</span>              <span class="comment"># FreeSWITCH WebSocket transport</span><br>
       &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">server_asterisk.py</span>      <span class="comment"># Asterisk HTTP transport</span><br>
-      &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">hermes_brain.py</span>          <span class="comment"># STT → LLM → TTS core</span><br>
+      &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">vokara_brain.py</span>          <span class="comment"># STT → LLM → TTS core</span><br>
       &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">vad.py</span>                   <span class="comment"># Voice Activity Detection</span><br>
       &#x2502;  &#x251c;&#x2500;&#x2500; <span class="file">persona.txt</span>              <span class="comment"># AI system prompt</span><br>
       &#x2502;  &#x2514;&#x2500;&#x2500; <span class="file">requirements.txt</span><br>
@@ -489,7 +502,7 @@
 <footer class="footer">
   <div class="container">
     <p>
-      <a href="https://github.com/OneByJorah/VoiceCortex">GitHub</a> &middot;
+      <a href="https://github.com/OneByJorah/vokara">GitHub</a> &middot;
       <a href="https://jorahone.com">JorahOne</a> &middot;
       <a href="../LICENSE">MIT License</a> &middot;
       <a href="../SECURITY.md">Security</a>

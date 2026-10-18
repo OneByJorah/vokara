@@ -1,6 +1,6 @@
 # Phase 1 AUDITOR — Audit Report
 
-**Repository:** `OneByJorah/VoiceCortex`
+**Repository:** `OneByJorah/vokara`
 **Date:** 2026-07-05
 **Analyst:** J1-PIPELINE AUDITOR
 
@@ -161,8 +161,8 @@
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Repo name matches brand | ✅ PASS | `hermes-voice` = "Hermes Voice" |
-| Consistent naming | ✅ PASS | All docs use "Hermes Voice" |
+| Repo name matches brand | ✅ PASS | `vokara` = "vokara" |
+| Consistent naming | ✅ PASS | All docs use "vokara" |
 | JorahOne attribution | ✅ PASS | Present in README and code headers |
 
 **Score: 90/100**

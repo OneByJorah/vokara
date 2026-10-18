@@ -1,5 +1,5 @@
 """
-Voice Activity Detection module for Hermes Voice.
+Voice Activity Detection module for Vokara.
 
 Provides Silero VAD (deep learning) with automatic fallback to
 amplitude-threshold VAD when PyTorch is unavailable.
@@ -22,7 +22,7 @@ import os
 
 import numpy as np
 
-logger = logging.getLogger("hermes.vad")
+logger = logging.getLogger("vokara.vad")
 
 SILENCE_THRESHOLD = int(os.environ.get("VAD_SILENCE_THRESHOLD", "500"))
 SILENCE_MS = int(os.environ.get("VAD_SILENCE_MS", "700"))

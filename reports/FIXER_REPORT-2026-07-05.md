@@ -1,6 +1,6 @@
 # Phase 4 FIXER — Fix Report
 
-**Repository:** `OneByJorah/VoiceCortex`
+**Repository:** `OneByJorah/vokara`
 **Date:** 2026-07-05
 **Analyst:** J1-PIPELINE FIXER
 
@@ -36,7 +36,7 @@
 - **Commit:** `acd2e55`
 - **Message:** `fix(docker): add non-root user to bot container — security hardening`
 - **File:** `bot/Dockerfile`
-- **Change:** Added `hermes` user/group, chown'd `/app` and `/piper-voices`, switched to `USER hermes`
+- **Change:** Added `vokara` user/group, chown'd `/app` and `/piper-voices`, switched to `USER vokara`
 
 ### Fix 4: Add health checks to Docker Compose (CRITICAL C2)
 - **Commit:** `2fb8279`
@@ -81,7 +81,7 @@
 ## Verification
 
 All modified files pass syntax checks:
-- ✅ `bot/hermes_brain.py` — Python syntax OK
+- ✅ `bot/vokara_brain.py` — Python syntax OK
 - ✅ `bot/server.py` — Python syntax OK
 - ✅ `bot/server_asterisk.py` — Python syntax OK
 - ✅ `bot/vad.py` — Python syntax OK

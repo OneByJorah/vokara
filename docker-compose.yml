@@ -1,7 +1,5 @@
-version: "3.9"
-
 # ============================================================================
-# HERMES VOICE — self-hosted voice assistant call stack
+# Vokara — self-hosted voice assistant call stack
 # JorahOne
 #
 # Call path:
@@ -11,6 +9,10 @@ version: "3.9"
 #                                                            |-- LLM: Ollama / llama.cpp / hosted API
 #                                                            |-- TTS: Piper
 #                                                          --WebSocket audio--> back into call
+#
+# The bot also serves a small HTTP surface:
+#   http://127.0.0.1:8766/         overview page
+#   http://127.0.0.1:8766/healthz  liveness probe
 #
 # PBX OPTIONS (see README.md for overview):
 #   - none/standalone : bundled FreeSWITCH below is the only PBX, dial ext. 8500
@@ -23,17 +25,21 @@ version: "3.9"
 #   is identical regardless of which PBX answers the call.
 #
 # LLM BACKEND OPTIONS (set LLM_BACKEND in .env):
-#   - ollama   : local Ollama server (default, e.g. your RTX 3060 box)
+#   - ollama   : local Ollama server (e.g. on a GPU box)
 #   - llamacpp : local llama.cpp `server` binary (OpenAI-compatible endpoint)
 #   - api      : hosted API — Anthropic by default, or any OpenAI-compatible
 #                endpoint (OpenAI, OpenRouter, etc.) via API_PROVIDER
+#
+# DEMO_MODE=true (the .env.example default) serves the HTTP surface and runs
+# the call loop with canned transcript/reply data — no models, keys, or GPU
+# required. Set DEMO_MODE=false for real STT/LLM/TTS.
 # ============================================================================
 
 services:
 
   freeswitch:
     image: signalwire/freeswitch:latest
-    container_name: hermes-freeswitch
+    container_name: vokara-freeswitch
     network_mode: host          # simplest for SIP/RTP NAT behavior on a LAN
     volumes:
       - ./freeswitch/conf:/etc/freeswitch
@@ -45,28 +51,34 @@ services:
                                   # to your own 3CX/FreePBX/Asterisk instead
 
   bot:
-    build: ./bot
-    container_name: hermes-bot
-    network_mode: host
+    image: ghcr.io/onebyjorah/vokara:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vokara-bot
+    ports:
+      - "127.0.0.1:8765:8765"   # call audio WebSocket (PBX connects here)
+      - "127.0.0.1:8766:8766"   # HTTP overview page + /healthz
     volumes:
-      - ./bot:/app
       - ./piper-voices:/piper-voices
     env_file:
       - .env
     environment:
+      - DEMO_MODE=${DEMO_MODE:-true}
       - WHISPER_MODEL=${WHISPER_MODEL:-small.en}
-      - WHISPER_DEVICE=${WHISPER_DEVICE:-cuda}
+      - WHISPER_DEVICE=${WHISPER_DEVICE:-cpu}
       - PIPER_VOICE=${PIPER_VOICE:-/piper-voices/en_US-amy-medium.onnx}
       - BOT_WS_PORT=${BOT_WS_PORT:-8765}
-      - HERMES_SYSTEM_PROMPT_FILE=/app/persona.txt
+      - BOT_HTTP_PORT=${BOT_HTTP_PORT:-8766}
+      - VOKARA_SYSTEM_PROMPT_FILE=/app/bot/persona.txt
     restart: unless-stopped
 
-# NOTE: Ollama is assumed to already be running on your host (RTX 3060 box)
-# per your existing setup. If you'd rather containerize it here too, add:
+# NOTE: Ollama is assumed to already be running on your host if you set
+# LLM_BACKEND=ollama. If you'd rather containerize it here too, add:
 #
 #  ollama:
 #    image: ollama/ollama:latest
-#    container_name: hermes-ollama
+#    container_name: vokara-ollama
 #    runtime: nvidia
 #    environment:
 #      - NVIDIA_VISIBLE_DEVICES=all

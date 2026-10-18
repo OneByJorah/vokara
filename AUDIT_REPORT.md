@@ -1,4 +1,4 @@
-# AUDIT_REPORT - VoiceCortex
+# AUDIT_REPORT - vokara
 **Date:** 2026-07-05
 **Score:** 72/100 - DEGRADED
 - Extensive Python phone AI assistant - no critical bugs

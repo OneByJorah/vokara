@@ -1,6 +1,6 @@
 # Phase 2 ARCHITECT — Architecture Report
 
-**Repository:** `OneByJorah/VoiceCortex`
+**Repository:** `OneByJorah/vokara`
 **Date:** 2026-07-05
 **Analyst:** J1-PIPELINE ARCHITECT
 
@@ -8,7 +8,7 @@
 
 ## Architecture Overview
 
-Hermes Voice implements a **streaming audio pipeline** for real-time AI-powered voice conversations over telephone (SIP/RTP). The architecture follows a clean **transport-agnostic core** pattern with thin transport adapters.
+vokara implements a **streaming audio pipeline** for real-time AI-powered voice conversations over telephone (SIP/RTP). The architecture follows a clean **transport-agnostic core** pattern with thin transport adapters.
 
 ### High-Level Architecture
 
@@ -31,7 +31,7 @@ Caller (SIP phone)
                       │ PCM16 bytes
                       ▼
 ┌─────────────────────────────────────────────────────┐
-│              Brain Core (hermes_brain.py)             │
+│              Brain Core (vokara_brain.py)             │
 │  ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌──────┐ │
 │  │   VAD   │→ │   STT    │→ │   LLM    │→ │ TTS  │ │
 │  │(Silero/ │  │(faster-  │  │(Ollama/  │  │(Piper│ │
@@ -46,7 +46,7 @@ Caller (SIP phone)
 ## Architectural Strengths
 
 ### 1. Transport-Agnostic Brain (Score: 95/100)
-`hermes_brain.py` is a pure module that accepts PCM16 bytes and returns text/audio. It has zero knowledge of telephony transports. `server.py` (FreeSWITCH WebSocket) and `server_asterisk.py` (Asterisk ARI) are thin adapters. Adding a new transport (WebRTC, SIP directly) requires no changes to the STT/LLM/TTS logic.
+`vokara_brain.py` is a pure module that accepts PCM16 bytes and returns text/audio. It has zero knowledge of telephony transports. `server.py` (FreeSWITCH WebSocket) and `server_asterisk.py` (Asterisk ARI) are thin adapters. Adding a new transport (WebRTC, SIP directly) requires no changes to the STT/LLM/TTS logic.
 
 ### 2. Factory Pattern for VAD (Score: 90/100)
 `vad.py` uses a factory function `create_vad()` that tries Silero VAD (deep learning) and falls back to amplitude-threshold VAD. Both implement the same interface (`is_speech()`, `process_stream()`, `reset()`), making them swappable without changing callers.
@@ -55,7 +55,7 @@ Caller (SIP phone)
 The brain supports Ollama, llama.cpp, and hosted API (Anthropic, OpenAI, OpenRouter) via a simple `ask_llm()` dispatcher. Each backend is a separate function with the same signature.
 
 ### 4. Clean Module Boundaries (Score: 90/100)
-- `hermes_brain.py` — STT/LLM/TTS logic
+- `vokara_brain.py` — STT/LLM/TTS logic
 - `vad.py` — Voice Activity Detection
 - `server.py` — FreeSWITCH transport
 - `server_asterisk.py` — Asterisk transport

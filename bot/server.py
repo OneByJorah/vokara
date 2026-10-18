@@ -1,10 +1,14 @@
 """
-Hermes Voice — FreeSWITCH transport
+Vokara — FreeSWITCH transport
 JorahOne
 
 Accepts a WebSocket audio stream from FreeSWITCH (mod_audio_fork) and runs
-it through hermes_brain.py (STT -> LLM -> TTS), streaming synthesized audio
+it through vokara_brain.py (STT -> LLM -> TTS), streaming synthesized audio
 back into the same call.
+
+Also serves a small HTTP surface on BOT_HTTP_PORT:
+  GET /        — overview page (dashboard/index.html)
+  GET /healthz — liveness probe
 
 For Asterisk/FreePBX instead of FreeSWITCH, see server_asterisk.py — same
 brain, different transport.
@@ -13,13 +17,19 @@ brain, different transport.
 import asyncio
 import json
 import os
+import threading
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-import hermes_brain as brain
+import vokara_brain as brain
 import websockets
 from vad import create_vad
 
 BOT_WS_PORT = int(os.environ.get("BOT_WS_PORT", "8765"))
+BOT_HTTP_PORT = int(os.environ.get("BOT_HTTP_PORT", "8766"))
 SAMPLE_RATE = int(os.environ.get("SAMPLE_RATE", "8000"))  # 8000=G.711, 16000=wideband
+
+DASHBOARD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "dashboard")
 
 
 class CallSession:
@@ -38,7 +48,7 @@ class CallSession:
 async def handle_connection(websocket):
     call_id = "unknown"
     session = None
-    print("[hermes] new call connected")
+    print("[vokara] new call connected")
 
     try:
         async for message in websocket:
@@ -47,7 +57,7 @@ async def handle_connection(websocket):
                     meta = json.loads(message)
                     call_id = meta.get("call_id", "unknown")
                     session = CallSession(call_id)
-                    print(f"[hermes] call_id={call_id} started")
+                    print(f"[vokara] call_id={call_id} started")
                 except json.JSONDecodeError:
                     pass
                 continue
@@ -62,7 +72,7 @@ async def handle_connection(websocket):
                 if event == "speech_start":
                     session.speech_started = True
                     session.buffer = bytearray()
-                    print(f"[hermes] [{call_id}] speech started")
+                    print(f"[vokara] [{call_id}] speech started")
 
                 elif event == "speech_end" and session.speech_started:
                     session.speech_started = False
@@ -73,12 +83,12 @@ async def handle_connection(websocket):
                     if not text:
                         continue
 
-                    print(f"[hermes] [{call_id}] caller said: {text}")
+                    print(f"[vokara] [{call_id}] caller said: {text}")
                     session.history.append({"role": "user", "content": text})
 
                     reply = brain.ask_llm(session.history)
                     session.history.append({"role": "assistant", "content": reply})
-                    print(f"[hermes] [{call_id}] hermes says: {reply}")
+                    print(f"[vokara] [{call_id}] bot says: {reply}")
 
                     audio_out = brain.synthesize_piper(reply, SAMPLE_RATE)
 
@@ -87,11 +97,51 @@ async def handle_connection(websocket):
                         await websocket.send(audio_out[i:i + frame_size])
 
     except websockets.exceptions.ConnectionClosed:
-        print(f"[hermes] call_id={call_id} disconnected")
+        print(f"[vokara] call_id={call_id} disconnected")
+
+
+class DashboardHandler(SimpleHTTPRequestHandler):
+    """Serves the overview page and /healthz. No directory listings."""
+
+    def do_GET(self):
+        path = self.path.split("?", 1)[0]
+        if path == "/healthz":
+            body = json.dumps({
+                "status": "ok",
+                "service": "vokara",
+                "demo_mode": brain.DEMO_MODE,
+                "ws_port": BOT_WS_PORT,
+            }).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if path in ("/", "/index.html"):
+            self.path = "/index.html"
+        return super().do_GET()
+
+    def list_directory(self, path):
+        self.send_error(403, "Directory listing disabled")
+        return None
+
+    def log_message(self, fmt, *args):
+        print(f"[vokara-http] {fmt % args}")
+
+
+def start_http_server():
+    handler = partial(DashboardHandler, directory=os.path.abspath(DASHBOARD_DIR))
+    httpd = ThreadingHTTPServer(("0.0.0.0", BOT_HTTP_PORT), handler)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    print(f"[vokara] HTTP dashboard + /healthz on 0.0.0.0:{BOT_HTTP_PORT}")
+    return httpd
 
 
 async def main():
-    print(f"[hermes] FreeSWITCH bridge listening on 0.0.0.0:{BOT_WS_PORT}")
+    start_http_server()
+    print(f"[vokara] call audio WebSocket listening on 0.0.0.0:{BOT_WS_PORT}")
     async with websockets.serve(handle_connection, "0.0.0.0", BOT_WS_PORT, max_size=None):
         await asyncio.Future()
 

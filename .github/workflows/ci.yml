@@ -40,9 +40,9 @@ jobs:
       - name: Build bot image
         uses: docker/build-push-action@v6
         with:
-          context: ./bot
+          context: .
           push: false
-          tags: voicecortex:ci
+          tags: vokara:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
